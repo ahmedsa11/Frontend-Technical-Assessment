@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, fetchCategories } from '../store/slices/productsSlice';
@@ -226,7 +226,9 @@ const PaginationButton = styled.button`
 
 const ProductListingPage = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { products, categories, loading, error } = useSelector((state: RootState) => state.products);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const [sortBy, setSortBy] = useState<'price-asc' | 'price-desc' | 'category' | ''>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -248,6 +250,10 @@ const ProductListingPage = () => {
   };
 
   const handleAddToCart = (product: Product) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     dispatch(addToCart(product));
   };
 

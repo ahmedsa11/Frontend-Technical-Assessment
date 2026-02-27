@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById, clearSelectedProduct } from '../store/slices/productsSlice';
 import { addToCart } from '../store/slices/cartSlice';
@@ -8,7 +8,9 @@ import type { RootState, AppDispatch } from '../store/store';
 const ProductDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { selectedProduct, loading, error } = useSelector((state: RootState) => state.products);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (id) {
@@ -20,6 +22,10 @@ const ProductDetailsPage = () => {
   }, [id, dispatch]);
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     if (selectedProduct) {
       dispatch(addToCart(selectedProduct));
     }
@@ -31,7 +37,7 @@ const ProductDetailsPage = () => {
         to="/"
         className="inline-flex items-center text-red-600 hover:text-red-600-dark mb-6"
       >
-         Back to Products
+        Back to Products
       </Link>
 
       {loading && (
